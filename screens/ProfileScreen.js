@@ -1,7 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, ScrollView, FlatList, Alert } from 'react-native';
 
-const ProfileScreen = ({ navigation }) => {
+const { width } = Dimensions.get('window');
+
+const ProfileScreen = ({ route, navigation }) => {
+  // Get the login state from route params if available
+  const [isLoggedIn, setIsLoggedIn] = useState(route.params?.isLoggedIn || false);
+  
   const profileImage = 'https://img.freepik.com/free-photo/close-up-portrait-beautiful-cat_23-2149214419.jpg';
 
   const favoriteTracks = [
@@ -20,7 +25,39 @@ const ProfileScreen = ({ navigation }) => {
     { id: '5', name: 'Justin Bieber', image: 'https://cdn.britannica.com/68/226968-050-C2FF98B9/Canadian-singer-Justin-Bieber-2021.jpg' },
   ];
 
-  const topGenres = ['Pop', 'Rock', 'Hip-Hop', 'Jazz', 'Electronic'];
+  const handleLogout = () => {
+    // Confirm logout
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "Yes", 
+          onPress: () => {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'LoginScreen' }],
+            });
+          }
+        }
+      ]
+    );
+  };
+
+  // Check login status on mount
+  useEffect(() => {
+    if (!isLoggedIn && !route.params?.isLoggedIn) {
+      // Reset the navigation state and navigate to LoginScreen
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'LoginScreen' }],
+      });
+    }
+  }, []);
 
   const renderAlbumItem = ({ item }) => (
     <View style={styles.albumContainer}>
@@ -37,6 +74,7 @@ const ProfileScreen = ({ navigation }) => {
     </View>
   );
 
+  // Show profile information if logged in
   return (
     <ScrollView style={styles.container}>
       {/* Header Section */}
@@ -61,10 +99,8 @@ const ProfileScreen = ({ navigation }) => {
       {/* Bio Section */}
       <View style={styles.bioContainer}>
         <Text style={styles.name}>John Doe</Text>
-        <Text style={styles.bio}>Music Enjoyer | Favorite Genres: Pop, Rock, Jazz</Text>
+        <Text style={styles.bio}>Music Enjoyer | Cat Lover </Text>
       </View>
-
-
 
       {/* Spotify Wrapped Stats Section */}
       <View style={styles.section}>
@@ -106,18 +142,14 @@ const ProfileScreen = ({ navigation }) => {
           contentContainerStyle={styles.horizontalList}
         />
       </View>
+
+      {/* Logout Button */}
+      <TouchableOpacity style={styles.logoutButtonFull} onPress={handleLogout}>
+        <Text style={styles.logoutButtonText}>Logout</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
-
-// Add header options for the ProfileScreen
-ProfileScreen.navigationOptions = ({ navigation }) => ({
-  headerRight: () => (
-    <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.logoutButton}>
-      <Text style={styles.logoutButtonText}>Logout</Text>
-    </TouchableOpacity>
-  ),
-});
 
 const styles = StyleSheet.create({
   container: {
@@ -231,32 +263,20 @@ const styles = StyleSheet.create({
     marginTop: 5,
     textAlign: 'center',
   },
-  genresContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  genrePill: {
-    backgroundColor: '#f0f0f0',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 15,
-    margin: 5,
-  },
-  genreText: {
-    fontSize: 12,
-    color: '#666',
-  },
   horizontalList: {
     paddingRight: 20,
-  },
-  logoutButton: {
-    marginRight: 15,
-    padding: 10,
   },
   logoutButtonText: {
     color: '#0554fe',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  logoutButtonFull: {
+    backgroundColor: '#f0f0f0',
+    margin: 20,
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
   },
 });
 
