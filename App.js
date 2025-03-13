@@ -5,10 +5,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign'; 
 
-// Import your screens
+// Import your actual screens
 import ProfileScreen from './screens/ProfileScreen';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
+import NotificationScreen from './screens/NotificationsScreen';
+import AlbumConfirmationScreen from './screens/AlbumConfirmationScreen';
 
 // Placeholder components for other tabs
 const MessagingScreen = () => (
@@ -29,13 +31,18 @@ const FeedScreen = () => (
   </View>
 );
 
-const NotificationsScreen = () => (
-  <View style={styles.screen}>
-    <Text>Notifications</Text>
-  </View>
-);
+// ✅ Create a Stack Navigator for Notifications (useful for navigating deeper into notification details)
+const NotificationsStack = createStackNavigator();
+const NotificationsStackNavigator = () => {
+  return (
+    <NotificationsStack.Navigator screenOptions={{ headerShown: false }}>
+      <NotificationsStack.Screen name="NotificationsMain" component={NotificationScreen} />
+      {/* Later, you can add more screens for opening specific notifications */}
+    </NotificationsStack.Navigator>
+  );
+};
 
-// Create navigators
+// Create bottom tab navigator
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -60,7 +67,6 @@ const TabNavigator = () => {
             iconName = 'user'; 
           } 
 
-          // Return the icon component
           return <Icon name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#0554fe', 
@@ -72,11 +78,9 @@ const TabNavigator = () => {
       <Tab.Screen name="Feed" component={FeedScreen} />
       <Tab.Screen name="Live" component={LiveScreen} />
       <Tab.Screen name="Messaging" component={MessagingScreen} />
-      <Tab.Screen name="Notifications" component={NotificationsScreen} />
-      <Tab.Screen 
-        name="Profile"
-        component={ProfileScreen}
-      />
+      <Tab.Screen name="Notifications" component={NotificationsStackNavigator} />
+      
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };
@@ -89,6 +93,8 @@ const App = () => {
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
         <Stack.Screen name="MainApp" component={TabNavigator} />
+        <Stack.Screen name="Notifications" component={NotificationScreen} />
+        <Stack.Screen name="AlbumConfirmation" component={AlbumConfirmationScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
