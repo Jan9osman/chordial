@@ -9,6 +9,9 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import ProfileScreen from './screens/ProfileScreen';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
+// At the top of App.js
+import MessagingStack from './screens/MessagingStack';
+
 
 // Placeholder components for other tabs
 const MessagingScreen = () => (
@@ -71,7 +74,7 @@ const TabNavigator = () => {
     >
       <Tab.Screen name="Feed" component={FeedScreen} />
       <Tab.Screen name="Live" component={LiveScreen} />
-      <Tab.Screen name="Messaging" component={MessagingScreen} />
+      <Tab.Screen name="Messaging" component={MessagingStack} />
       <Tab.Screen name="Notifications" component={NotificationsScreen} />
       <Tab.Screen 
         name="Profile"
