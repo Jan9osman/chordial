@@ -11,6 +11,8 @@ import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import NotificationScreen from './screens/NotificationsScreen';
 import AlbumConfirmationScreen from './screens/AlbumConfirmationScreen';
+import MessagingStack from './screens/MessagingStack';
+
 
 // Placeholder components for other tabs
 const MessagingScreen = () => (
@@ -77,7 +79,7 @@ const TabNavigator = () => {
     >
       <Tab.Screen name="Feed" component={FeedScreen} />
       <Tab.Screen name="Live" component={LiveScreen} />
-      <Tab.Screen name="Messaging" component={MessagingScreen} />
+      <Tab.Screen name="Messaging" component={MessagingStack} />
       <Tab.Screen name="Notifications" component={NotificationsStackNavigator} />
       
       <Tab.Screen name="Profile" component={ProfileScreen} />
