@@ -9,6 +9,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import ProfileScreen from './screens/ProfileScreen';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
+import FeedScreen from './screens/FeedScreen';
 
 // Placeholder components for other tabs
 const MessagingScreen = () => (
@@ -23,11 +24,11 @@ const LiveScreen = () => (
   </View>
 );
 
-const FeedScreen = () => (
-  <View style={styles.screen}>
-    <Text>Feed</Text>
-  </View>
-);
+// const FeedScreen = () => (
+//   <View style={styles.screen}>
+//     <Text>Feed</Text>
+//   </View>
+// );
 
 const NotificationsScreen = () => (
   <View style={styles.screen}>
