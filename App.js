@@ -11,6 +11,7 @@ import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 // At the top of App.js
 import MessagingStack from './screens/MessagingStack';
+import ChorialSocialScreen from './screens/LivesAndCommunities'
 
 
 // Placeholder components for other tabs
@@ -20,11 +21,11 @@ const MessagingScreen = () => (
   </View>
 );
 
-const LiveScreen = () => (
-  <View style={styles.screen}>
-    <Text>Live/Communities</Text>
-  </View>
-);
+//const LiveScreen = () => (
+ // <View style={styles.screen}>
+  //  <Text>Live/Communities</Text>
+  //</View>
+//);
 
 const FeedScreen = () => (
   <View style={styles.screen}>
@@ -73,7 +74,7 @@ const TabNavigator = () => {
       })}
     >
       <Tab.Screen name="Feed" component={FeedScreen} />
-      <Tab.Screen name="Live" component={LiveScreen} />
+      <Tab.Screen name="Live" component={ChorialSocialScreen} />
       <Tab.Screen name="Messaging" component={MessagingStack} />
       <Tab.Screen name="Notifications" component={NotificationsScreen} />
       <Tab.Screen 
