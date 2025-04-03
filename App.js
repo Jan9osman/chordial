@@ -13,6 +13,7 @@ import SignUpScreen from './screens/SignUpScreen';
 import MessagingStack from './screens/MessagingStack';
 import ChorialSocialScreen from './screens/LivesAndCommunities'
 
+import FeedScreen from './screens/FeedScreen';
 
 // Placeholder components for other tabs
 const MessagingScreen = () => (
@@ -27,11 +28,11 @@ const MessagingScreen = () => (
   //</View>
 //);
 
-const FeedScreen = () => (
-  <View style={styles.screen}>
-    <Text>Feed</Text>
-  </View>
-);
+// const FeedScreen = () => (
+//   <View style={styles.screen}>
+//     <Text>Feed</Text>
+//   </View>
+// );
 
 const NotificationsScreen = () => (
   <View style={styles.screen}>
