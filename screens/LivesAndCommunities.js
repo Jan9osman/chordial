@@ -270,7 +270,7 @@ const CommunityDetailScreen = ({ community, onBack, feed }) => {
   );
 };
 
-const ChorialSocialScreen = () => {
+const ChorialSocialScreen = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('Communities');
   const [selectedCommunity, setSelectedCommunity] = useState(null);
 
@@ -314,7 +314,7 @@ const ChorialSocialScreen = () => {
               <TouchableOpacity
                 key={video.id}
                 style={styles.videoCard}
-                onPress={() => Alert.alert('Live Video', `Playing ${video.title}`)}
+                onPress={() => navigation.navigate('ArianaLive')}
               >
                 <View style={styles.videoThumbnailWrapper}>
                   <Image

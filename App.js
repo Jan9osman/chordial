@@ -12,6 +12,7 @@ import SignUpScreen from './screens/SignUpScreen';
 import NotificationScreen from './screens/NotificationsScreen';
 import MessagingStack from './screens/MessagingStack';
 import ChorialSocialScreen from './screens/LivesAndCommunities'
+import LiveViewScreen from './screens/LiveViewScreen';
 
 import FeedScreen from './screens/FeedScreen';
 import MobileFrame from './components/MobileFrame';
@@ -88,6 +89,7 @@ const App = () => {
           <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
           <Stack.Screen name="MainApp" component={TabNavigator} />
           <Stack.Screen name="Notifications" component={NotificationScreen} />
+          <Stack.Screen name="ArianaLive" component={LiveViewScreen} />
         </Stack.Navigator>
       </MobileFrame>
     </NavigationContainer>
