@@ -11,26 +11,29 @@ import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import NotificationScreen from './screens/NotificationsScreen';
 import MessagingStack from './screens/MessagingStack';
+import ChorialSocialScreen from './screens/LivesAndCommunities'
+
+import FeedScreen from './screens/FeedScreen';
 import MobileFrame from './components/MobileFrame';
 
-// Placeholder screens
+// Placeholder components for other tabs
 const MessagingScreen = () => (
   <View style={styles.screen}>
     <Text>Messaging</Text>
   </View>
 );
 
-const LiveScreen = () => (
-  <View style={styles.screen}>
-    <Text>Live/Communities</Text>
-  </View>
-);
+//const LiveScreen = () => (
+ // <View style={styles.screen}>
+  //  <Text>Live/Communities</Text>
+  //</View>
+//);
 
-const FeedScreen = () => (
-  <View style={styles.screen}>
-    <Text>Feed</Text>
-  </View>
-);
+// const FeedScreen = () => (
+//   <View style={styles.screen}>
+//     <Text>Feed</Text>
+//   </View>
+// );
 
 // Notifications stack
 const NotificationsStack = createStackNavigator();
@@ -67,7 +70,7 @@ const TabNavigator = () => {
       })}
     >
       <Tab.Screen name="Feed" component={FeedScreen} />
-      <Tab.Screen name="Live" component={LiveScreen} />
+      <Tab.Screen name="Live" component={ChorialSocialScreen} />
       <Tab.Screen name="Messaging" component={MessagingStack} />
       <Tab.Screen name="Notifications" component={NotificationsStackNavigator} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
