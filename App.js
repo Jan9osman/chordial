@@ -5,15 +5,15 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign'; 
 
-// Import your actual screens
+// Screens
 import ProfileScreen from './screens/ProfileScreen';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import NotificationScreen from './screens/NotificationsScreen';
 import MessagingStack from './screens/MessagingStack';
+import MobileFrame from './components/MobileFrame';
 
-
-// Placeholder components for other tabs
+// Placeholder screens
 const MessagingScreen = () => (
   <View style={styles.screen}>
     <Text>Messaging</Text>
@@ -32,70 +32,61 @@ const FeedScreen = () => (
   </View>
 );
 
-// ✅ Create a Stack Navigator for Notifications (useful for navigating deeper into notification details)
+// Notifications stack
 const NotificationsStack = createStackNavigator();
 const NotificationsStackNavigator = () => {
   return (
     <NotificationsStack.Navigator screenOptions={{ headerShown: false }}>
       <NotificationsStack.Screen name="NotificationsMain" component={NotificationScreen} />
-      {/* Later, you can add more screens for opening specific notifications */}
     </NotificationsStack.Navigator>
   );
 };
 
-// Create bottom tab navigator
+// Tab navigator
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// Tab navigator component
 const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
           let iconName;
-
-          // Assign icons based on the route name
-          if (route.name === 'Feed') {
-            iconName = 'home'; 
-          } else if (route.name === 'Live') {
-            iconName = 'videocamera'; 
-          } else if (route.name === 'Messaging') {
-            iconName = 'message1'; 
-          } else if (route.name === 'Notifications') {
-            iconName = 'bells';
-          } else if (route.name === 'Profile') {
-            iconName = 'user'; 
-          } 
+          if (route.name === 'Feed') iconName = 'home';
+          else if (route.name === 'Live') iconName = 'videocamera';
+          else if (route.name === 'Messaging') iconName = 'message1';
+          else if (route.name === 'Notifications') iconName = 'bells';
+          else if (route.name === 'Profile') iconName = 'user';
 
           return <Icon name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#0554fe', 
-        tabBarInactiveTintColor: '#666', 
+        tabBarActiveTintColor: '#0554fe',
+        tabBarInactiveTintColor: '#666',
         tabBarStyle: styles.tabBar,
-        tabBarLabel: '', 
+        tabBarLabel: '',
       })}
     >
       <Tab.Screen name="Feed" component={FeedScreen} />
       <Tab.Screen name="Live" component={LiveScreen} />
       <Tab.Screen name="Messaging" component={MessagingStack} />
       <Tab.Screen name="Notifications" component={NotificationsStackNavigator} />
-      
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };
 
-// Main App component
+// Main App
 const App = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="LoginScreen" component={LoginScreen} />
-        <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
-        <Stack.Screen name="MainApp" component={TabNavigator} />
-        <Stack.Screen name="Notifications" component={NotificationScreen} />
-      </Stack.Navigator>
+      <MobileFrame> {/* ✅ Global wrapper for consistent mobile sizing */}
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+          <Stack.Screen name="MainApp" component={TabNavigator} />
+          <Stack.Screen name="Notifications" component={NotificationScreen} />
+        </Stack.Navigator>
+      </MobileFrame>
     </NavigationContainer>
   );
 };

@@ -4,15 +4,13 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  useWindowDimensions,
   Image,
   ScrollView,
   FlatList,
   Modal,
   Linking,
 } from "react-native";
-
-const { width } = Dimensions.get("window");
 
 const notificationsData = [
   {
@@ -79,15 +77,16 @@ const notificationsData = [
   },
 ];
 
-const NotificationScreen = ({ navigation }) => {
+const NotificationScreen = () => {
   const [notifications, setNotifications] = useState([...notificationsData]);
   const [selectedTab, setSelectedTab] = useState("artist");
   const [selectedAlbum, setSelectedAlbum] = useState(null);
   const [albumModalVisible, setAlbumModalVisible] = useState(false);
 
+  const { width } = useWindowDimensions();
+
   const markAllAsRead = () => {
-    const updated = notifications.map((n) => ({ ...n, isNew: false }));
-    setNotifications(updated);
+    setNotifications((prev) => prev.map((n) => ({ ...n, isNew: false })));
   };
 
   const markNotificationAsRead = (id) => {
@@ -104,9 +103,39 @@ const NotificationScreen = ({ navigation }) => {
     .filter((n) => n.type !== "album")
     .sort((a, b) => b.isNew - a.isNew);
 
+  const dynamicStyles = StyleSheet.create({
+    segmentContainer: {
+      flexDirection: "row",
+      marginBottom: width * 0.05,
+      paddingHorizontal: width * 0.04,
+    },
+    segmentButton: {
+      flex: 1,
+      paddingVertical: width * 0.03,
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: "#ccc",
+      borderRadius: 5,
+      marginHorizontal: 5,
+    },
+    segmentText: {
+      fontSize: width < 360 ? 13 : 16,
+      color: "#333",
+    },
+    notificationItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: width * 0.04,
+      paddingHorizontal: width * 0.05,
+      borderBottomWidth: 1,
+      borderBottomColor: "#eee",
+      position: "relative",
+    },
+  });
+
   const renderAlbumNotification = ({ item }) => (
     <TouchableOpacity
-      style={styles.notificationItem}
+      style={dynamicStyles.notificationItem}
       onPress={() => {
         markNotificationAsRead(item.id);
         setSelectedAlbum(item);
@@ -124,7 +153,7 @@ const NotificationScreen = ({ navigation }) => {
 
   const renderCommentNotification = ({ item }) => (
     <TouchableOpacity
-      style={styles.notificationItem}
+      style={dynamicStyles.notificationItem}
       onPress={() => {
         markNotificationAsRead(item.id);
       }}
@@ -146,18 +175,18 @@ const NotificationScreen = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Toggle Tabs */}
-      <View style={styles.segmentContainer}>
+      {/* Tabs */}
+      <View style={dynamicStyles.segmentContainer}>
         <TouchableOpacity
           style={[
-            styles.segmentButton,
+            dynamicStyles.segmentButton,
             selectedTab === "artist" && styles.selectedSegment,
           ]}
           onPress={() => setSelectedTab("artist")}
         >
           <Text
             style={[
-              styles.segmentText,
+              dynamicStyles.segmentText,
               selectedTab === "artist" && styles.selectedSegmentText,
             ]}
           >
@@ -166,14 +195,14 @@ const NotificationScreen = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={[
-            styles.segmentButton,
+            dynamicStyles.segmentButton,
             selectedTab === "personal" && styles.selectedSegment,
           ]}
           onPress={() => setSelectedTab("personal")}
         >
           <Text
             style={[
-              styles.segmentText,
+              dynamicStyles.segmentText,
               selectedTab === "personal" && styles.selectedSegmentText,
             ]}
           >
@@ -200,7 +229,6 @@ const NotificationScreen = ({ navigation }) => {
         keyExtractor={(item) => item.id}
       />
 
-      {/* Album Modal */}
       {selectedAlbum && (
         <Modal
           visible={albumModalVisible}
@@ -250,39 +278,13 @@ const styles = StyleSheet.create({
     color: "#0554fe",
     fontWeight: "600",
   },
-  segmentContainer: {
-    flexDirection: 'row',
-    marginBottom: width * 0.05,
-    paddingHorizontal: 20,
-  },
-  segmentButton: {
-    flex: 1,
-    paddingVertical: width * 0.03,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginHorizontal: 5,
-  },
   selectedSegment: {
-    backgroundColor: '#007BFF',
-    borderColor: '#007BFF',
-  },
-  segmentText: {
-    fontSize: width * 0.04,
-    color: '#333',
+    backgroundColor: "#007BFF",
+    borderColor: "#007BFF",
   },
   selectedSegmentText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  notificationItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    position: "relative",
+    color: "#fff",
+    fontWeight: "bold",
   },
   albumCoverLarge: {
     width: 50,
