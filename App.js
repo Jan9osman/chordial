@@ -10,7 +10,6 @@ import ProfileScreen from './screens/ProfileScreen';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import NotificationScreen from './screens/NotificationsScreen';
-import AlbumConfirmationScreen from './screens/AlbumConfirmationScreen';
 import MessagingStack from './screens/MessagingStack';
 
 
@@ -96,7 +95,6 @@ const App = () => {
         <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
         <Stack.Screen name="MainApp" component={TabNavigator} />
         <Stack.Screen name="Notifications" component={NotificationScreen} />
-        <Stack.Screen name="AlbumConfirmation" component={AlbumConfirmationScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
