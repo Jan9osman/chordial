@@ -66,10 +66,11 @@ const songs = [
 ];
 
 const FeedScreen = () => {
+  const [profileImage, setProfileImage] = useState('https://img.freepik.com/free-photo/close-up-portrait-beautiful-cat_23-2149214419.jpg');
   const [lyricModalVisible, setLyricModalVisible] = useState(false);
   const [commentModalVisible, setCommentModalVisible] = useState(false);
   const [selectedComments, setSelectedComments] = useState([]);
-  const [myComment, setMyComment] = useState();
+  const [commented, setCommented] = useState(0); // have i sent my comment?
   const [liked, setLiked] = useState(false);
   const [comments, setComments] = useState(true);
   const [lyrics, setLyrics] = useState(false);
@@ -91,8 +92,17 @@ const FeedScreen = () => {
 
     // Add logic to send the comment
     console.log('Send comment:', commentText);
+    const myComment = {
+        profilePic: { uri: profileImage },
+        profileName: 'John Doe', // Placeholder, you can change this based on logged-in user
+        timestamp: null,
+        text: commentText,
+      };
 
-    setCommentText('');
+      setSelectedComments([myComment, ...selectedComments]);
+      setCommented(1);
+
+      setCommentText('');
   };
 
   const selectComments = (comments) => {
