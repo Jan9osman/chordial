@@ -83,10 +83,30 @@ const FeedScreen = () => {
   const [currentLyricIndex, setCurrentLyricIndex] = useState(0);
   const [currentSongPosition, setCurrentSongPosition] = useState(0);  
   const { height, width } = useWindowDimensions();
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const sliderHeight = 40;
-
   const [commentText, setCommentText] = useState('');
 
+  // Function to toggle the search field visibility
+  const handleSearchPress = () => {
+    setIsSearchActive(!isSearchActive);
+  };
+
+  // Function to clear the search text and close the keyboard when the search is completed
+  const handleSearchSubmit = () => {
+    console.log('Search text:', searchText);
+    // Handle search logic here (e.g., filter data based on searchText)
+    
+    // Close the keyboard
+    Keyboard.dismiss();
+    setIsSearchActive(false);  // Hide the search input after submitting
+    setSearchText('');  // Clear the search text field
+
+  };
+  const handleBlur = () => {
+    setIsSearchActive(false);
+  };
   const handleSendComment = () => {
     if (commentText.trim() === '') return;
 
@@ -146,7 +166,6 @@ const FeedScreen = () => {
 
                 if (status.positionMillis/1000 > songs[currentSongIndex].lyrics[i].time) {
                   setCurrentLyricIndex(i);
-                  console.log('SET INDEX TO: ', i)
                   break;
                 }
             }
@@ -527,13 +546,39 @@ const FeedScreen = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000' }}>
-      <View style={{ position: 'absolute', top: 20, left: 20, zIndex: 1 }}>
+      {/* <View style={{ position: 'absolute', top: 20, left: 20, zIndex: 1 }}>
         <Text style={{ color: 'white', fontSize: 24, fontWeight: 'bold' }}>Your Feed</Text>
-      </View>
-      <View style={{ position: 'absolute', top: 25, right: 20, zIndex: 1 }}>
-        <TouchableOpacity>
+      </View> */}
+
+    {/* Search Icon and Text Input */}
+      <View style={{ position: 'absolute', top: 25, right: 20, zIndex: 1, flexDirection: 'row', alignItems: 'center' }}>
+        {/* Search Icon */}
+        <TouchableOpacity onPress={handleSearchPress}>
           <Ionicons name="search" size={24} color="white" />
         </TouchableOpacity>
+
+        {/* Text Input */}
+        {isSearchActive && (
+          <TextInput
+            style={{
+              marginLeft: 10,
+              backgroundColor: 'white',
+              paddingHorizontal: 10,
+              height: 40,
+              width: '120%', // Adjust width as needed
+              borderRadius: 20,
+              fontSize: 16,
+            }}
+            placeholder="Search..."
+            autoFocus={true}
+            value={searchText}
+            onChangeText={setSearchText}
+            onSubmitEditing={handleSearchSubmit}  // Called when user presses enter
+            returnKeyType="search"  // Adjust the return key to show 'search'
+            onBlur={handleBlur}  // Called when the input loses focus
+
+          />
+        )}
       </View>
       <FlatList
         onLayout={(event) => {
