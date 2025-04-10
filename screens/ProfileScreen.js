@@ -1,28 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Image,
   ScrollView,
   FlatList,
   Alert,
   Modal,
   TextInput,
-  TouchableWithoutFeedback,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import { CommonActions } from '@react-navigation/native'; // ✅ Required for reset
 
-const ProfileScreen = ({ route, navigation }) => {
+const ProfileScreen = ({ navigation }) => {
   const { width, height } = useWindowDimensions();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(route.params?.isLoggedIn || false);
   const [profileImage, setProfileImage] = useState('https://img.freepik.com/free-photo/close-up-portrait-beautiful-cat_23-2149214419.jpg');
   const [name, setName] = useState('John Doe');
   const [bio, setBio] = useState('Music Enjoyer | Cat Lover');
@@ -49,21 +46,20 @@ const ProfileScreen = ({ route, navigation }) => {
     { id: '5', name: 'Justin Bieber', image: 'https://cdn.britannica.com/68/226968-050-C2FF98B9/Canadian-singer-Justin-Bieber-2021.jpg' },
   ];
 
-  useEffect(() => {
-    if (!isLoggedIn && !route.params?.isLoggedIn) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'LoginScreen' }],
-      });
-    }
-  }, []);
-
+  // ✅ Fixed logout using reset
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to log out?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Yes",
-        onPress: () => navigation.reset({ index: 0, routes: [{ name: 'LoginScreen' }] }),
+        onPress: () => {
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: 'LoginScreen' }],
+            })
+          );
+        },
       },
     ]);
   };
@@ -126,6 +122,7 @@ const ProfileScreen = ({ route, navigation }) => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+        {/* Profile Header */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 20 }}>
           <Image source={{ uri: profileImage }} style={{ width: width * 0.25, height: width * 0.25, borderRadius: width * 0.125 }} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, marginLeft: 20 }}>
@@ -144,16 +141,21 @@ const ProfileScreen = ({ route, navigation }) => {
           </View>
         </View>
 
+        {/* Name + Bio + Edit */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 }}>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{name}</Text>
             <Text style={{ fontSize: 14, color: '#666', marginTop: 5 }}>{bio}</Text>
           </View>
-          <TouchableOpacity style={{ backgroundColor: '#0554fe', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 20, marginLeft: 10 }} onPress={handleEditProfile}>
+          <TouchableOpacity
+            style={{ backgroundColor: '#0554fe', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 20, marginLeft: 10 }}
+            onPress={handleEditProfile}
+          >
             <Text style={{ color: '#fff', fontSize: 14, fontWeight: '600' }}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
+        {/* Spotify Wrapped */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Your Spotify Wrapped</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -168,6 +170,7 @@ const ProfileScreen = ({ route, navigation }) => {
           </View>
         </View>
 
+        {/* Artists */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Top Artists</Text>
           <FlatList
@@ -180,6 +183,7 @@ const ProfileScreen = ({ route, navigation }) => {
           />
         </View>
 
+        {/* Tracks */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Favorite Tracks</Text>
           <FlatList
@@ -192,11 +196,16 @@ const ProfileScreen = ({ route, navigation }) => {
           />
         </View>
 
-        <TouchableOpacity style={{ backgroundColor: '#f0f0f0', margin: 20, padding: 15, borderRadius: 5, alignItems: 'center' }} onPress={handleLogout}>
+        {/* Logout Button */}
+        <TouchableOpacity
+          style={{ backgroundColor: '#f0f0f0', margin: 20, padding: 15, borderRadius: 5, alignItems: 'center' }}
+          onPress={handleLogout}
+        >
           <Text style={{ color: '#0554fe', fontSize: 16, fontWeight: 'bold' }}>Logout</Text>
         </TouchableOpacity>
       </ScrollView>
 
+      {/* Edit Profile Modal — same as before, safe to leave as-is */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -204,82 +213,81 @@ const ProfileScreen = ({ route, navigation }) => {
         onRequestClose={() => setIsEditModalVisible(false)}
       >
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'flex-end' }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}
         >
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={{ backgroundColor: 'white', padding: width * 0.05, borderTopLeftRadius: 20, borderTopRightRadius: 20, minHeight: height * 0.6 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <TouchableOpacity onPress={() => setIsEditModalVisible(false)}>
-                  <Text style={{ fontSize: 16, color: '#999' }}>Cancel</Text>
-                </TouchableOpacity>
-                <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Edit Profile</Text>
-                <TouchableOpacity onPress={handleSaveProfile}>
-                  <Text style={{ fontSize: 16, color: '#0554fe' }}>Save</Text>
+          <View style={{ backgroundColor: 'white', padding: width * 0.05, borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: height * 0.9 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <TouchableOpacity onPress={() => setIsEditModalVisible(false)}>
+                <Text style={{ fontSize: 16, color: '#999' }}>Cancel</Text>
+              </TouchableOpacity>
+              <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Edit Profile</Text>
+              <TouchableOpacity onPress={handleSaveProfile}>
+                <Text style={{ fontSize: 16, color: '#0554fe' }}>Save</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView contentContainerStyle={{ paddingBottom: 20 }} keyboardShouldPersistTaps="handled">
+              <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                <Image
+                  source={{ uri: imageUri || profileImage }}
+                  style={{ width: width * 0.25, height: width * 0.25, borderRadius: width * 0.125 }}
+                />
+                <TouchableOpacity
+                  style={{ marginTop: 10, backgroundColor: '#f0f0f0', padding: 8, paddingHorizontal: 15, borderRadius: 20 }}
+                  onPress={handleSelectImage}
+                >
+                  <Text style={{ fontSize: 14, color: '#0554fe' }}>
+                    {imageUri ? 'Change Selected Image' : 'Change Profile Picture'}
+                  </Text>
                 </TouchableOpacity>
               </View>
 
-              <ScrollView contentContainerStyle={{ paddingVertical: 10 }} keyboardShouldPersistTaps="handled">
-                <View style={{ alignItems: 'center', marginBottom: 20 }}>
-                  <Image
-                    source={{ uri: imageUri || profileImage }}
-                    style={{ width: width * 0.25, height: width * 0.25, borderRadius: width * 0.125, marginBottom: 10 }}
-                  />
-                  <TouchableOpacity
-                    style={{ backgroundColor: '#f0f0f0', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 20 }}
-                    onPress={handleSelectImage}
-                  >
-                    <Text style={{ fontSize: 14, color: '#0554fe' }}>
-                      {imageUri ? 'Change Selected Image' : 'Change Profile Picture'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+              <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 5 }}>Name</Text>
+              <TextInput
+                style={{
+                  borderWidth: 1,
+                  borderColor: isNameFocused ? '#0554fe' : '#ddd',
+                  borderRadius: 10,
+                  padding: 10,
+                  marginBottom: 15,
+                  fontSize: 14,
+                }}
+                value={editName}
+                onChangeText={setEditName}
+                placeholder="Enter your name"
+                onFocus={() => setIsNameFocused(true)}
+                onBlur={() => setIsNameFocused(false)}
+              />
 
-                <View>
-                  <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 5 }}>Name</Text>
-                  <TextInput
-                    style={{
-                      borderWidth: 1,
-                      borderColor: isNameFocused ? '#0554fe' : '#ddd',
-                      borderRadius: 10,
-                      padding: 10,
-                      marginBottom: 15,
-                      fontSize: 14,
-                    }}
-                    value={editName}
-                    onChangeText={setEditName}
-                    placeholder="Enter your name"
-                    onFocus={() => setIsNameFocused(true)}
-                    onBlur={() => setIsNameFocused(false)}
-                  />
+              <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 5 }}>Bio</Text>
+              <TextInput
+                style={{
+                  borderWidth: 1,
+                  borderColor: isBioFocused ? '#0554fe' : '#ddd',
+                  borderRadius: 10,
+                  padding: 10,
+                  fontSize: 14,
+                  height: 100,
+                  textAlignVertical: 'top',
+                }}
+                value={editBio}
+                onChangeText={setEditBio}
+                placeholder="Tell us about yourself"
+                multiline
+                numberOfLines={4}
+                onFocus={() => setIsBioFocused(true)}
+                onBlur={() => setIsBioFocused(false)}
+              />
+            </ScrollView>
 
-                  <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 5 }}>Bio</Text>
-                  <TextInput
-                    style={{
-                      borderWidth: 1,
-                      borderColor: isBioFocused ? '#0554fe' : '#ddd',
-                      borderRadius: 10,
-                      padding: 10,
-                      fontSize: 14,
-                      height: 100,
-                      textAlignVertical: 'top',
-                    }}
-                    value={editBio}
-                    onChangeText={setEditBio}
-                    placeholder="Tell us about yourself"
-                    multiline
-                    numberOfLines={4}
-                    onFocus={() => setIsBioFocused(true)}
-                    onBlur={() => setIsBioFocused(false)}
-                  />
-                </View>
-              </ScrollView>
-
-              <TouchableOpacity style={{ backgroundColor: '#0554fe', paddingVertical: 12, borderRadius: 5, alignItems: 'center' }} onPress={handleSaveProfile}>
-                <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>Save Changes</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableWithoutFeedback>
+            <TouchableOpacity
+              style={{ backgroundColor: '#0554fe', paddingVertical: 12, borderRadius: 5, alignItems: 'center', marginTop: 10 }}
+              onPress={handleSaveProfile}
+            >
+              <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>Save Changes</Text>
+            </TouchableOpacity>
+          </View>
         </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
