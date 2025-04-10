@@ -17,18 +17,18 @@ import { Video } from 'expo-av';
 // LIVE OPTIONS DATA
 // ----------------------------
 const liveOptions = [
-  {
-    id: 'AG',
-    title: 'Ariana Grande Live: Promoting New Music',
-    video: require('../assets/AGLive.mp4'),
-    thumbnail: require('../assets/arianaLive.jpg'),
-  },
-  {
-    id: 'JB',
-    title: 'Community Exclusive: Roasting Fans',
-    video: require('../assets/JBLive.mp4'),
-    thumbnail: require('../assets/justinLive.jpg'),
-  },
+  // {
+  //   id: 'AG',
+  //   title: 'Ariana Grande Live: Promoting New Music',
+  //   video: require('../assets/AGLive.mp4'),
+  //   thumbnail: require('../assets/arianaLive.jpg'),
+  // },
+  // {
+  //   id: 'JB',
+  //   title: 'Community Exclusive: Roasting Fans',
+  //   video: require('../assets/JBLive.mp4'),
+  //   thumbnail: require('../assets/justinLive.jpg'),
+  // },
   {
     id: 'TM',
     title: 'Tate McRae: Concert Live Stream',
