@@ -29,7 +29,7 @@ const songs = [
         audio_source: require('../assets/Let_it_happen_clip.mp3'),
         backgroundColor: 'red',
         comments: [
-          { profilePic: require('../assets/user1.jpeg'), profileName: 'Bob', timestamp: '6:14', text: 'This riff slaps so hard!' },
+          { profilePic: require('../assets/user1.jpeg'), profileName: 'Bob', timestamp: '0:00', text: 'This riff slaps so hard!' },
           { profilePic: require('../assets/user2.jpeg'), profileName: 'Alice', timestamp: null, text: 'Such a vibe.' },
           { profilePic: require('../assets/user4.jpeg'), profileName: 'Tony', timestamp: null,text: 'I love you Kevin Parker.' }
         ]
@@ -65,10 +65,12 @@ const FeedScreen = () => {
   const [liked, setLiked] = useState(false);
   const [comments, setComments] = useState(true);
   const [lyrics, setLyrics] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [flatListHeight, setFlatListHeight] = useState(0);
   const [sound, setSound] = useState(null);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
-
+  const [sliderValue, setSliderValue] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
   const { height, width } = useWindowDimensions();
   const sliderHeight = 40;
 
@@ -103,6 +105,12 @@ const FeedScreen = () => {
         { isLooping: true, shouldPlay: true }
       );
       setSound(sound);
+      // Update the slider value based on the audio position
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isPlaying) {
+            setSliderValue(status.positionMillis / status.durationMillis * 100);
+        }
+    });
     } catch (error) {
       console.error('Error loading audio', error);
     }
@@ -155,6 +163,22 @@ const FeedScreen = () => {
     };
   }, [navigation, sound]); // Listens for screen focus and blur
 
+  const updateSongPosition = async (sound, value) => {
+    if (sound) {
+        // Get the current status of the sound
+        const status = await sound.getStatusAsync();
+
+        // Calculate the new position based on the slider value
+        const newPositionMillis = (value / 100) * status.durationMillis;
+
+        console.log('Updating position to:', newPositionMillis);
+
+        // Set the position of the sound
+        await sound.setPositionAsync(newPositionMillis.toFixed(2));
+        
+    }
+};
+
   const renderItem = ({ item }) => (
     <View
       style={{
@@ -183,6 +207,19 @@ const FeedScreen = () => {
         <TouchableOpacity onPress={() => selectLyrics()}>
           <Ionicons name={lyrics ? 'mic' : 'mic-outline'} size={24} color="white" />
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={async ()=> {
+            if (paused){
+                await sound.playAsync();
+            } else {
+                await sound.pauseAsync();
+            }
+            setPaused(!paused)
+        }}
+            style={{ marginRight: 10 }}>
+          <Ionicons name={paused?"play": "pause"} size={24} color="white" />
+        </TouchableOpacity>
+
       </View>
 
       {(comments || lyrics) && (
@@ -287,21 +324,23 @@ const FeedScreen = () => {
           height: sliderHeight,
           flexDirection: 'row',
           alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        <TouchableOpacity style={{ marginRight: 10 }}>
-          <Ionicons name="pause-outline" size={24} color="white" />
-        </TouchableOpacity>
+        
         <Slider
-          style={{ width: '90%', height: 20 }}
-          tapToSeek={true}
-          minimumValue={0}
-          maximumValue={100}
-          value={50}
-          thumbTintColor="rgba(0,0,0,0)"
-          minimumTrackTintColor="gray"
-          maximumTrackTintColor="lightgray"
-        />
+            style={{ width: '90%', height: 20 }}
+            tapToSeek={true}
+            minimumValue={0}
+            maximumValue={100}
+            value={sliderValue} // Sync slider with audio position
+            // thumbTintColor="rgba(0,0,0,0)"
+            thumbTintColor='white'
+            minimumTrackTintColor="gray"
+            maximumTrackTintColor="lightgray"
+            onValueChange={(value) => {
+                updateSongPosition(sound, value)
+            }}/>
       </View>
     </View>
   );
