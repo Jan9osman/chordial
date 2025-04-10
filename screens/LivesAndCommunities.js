@@ -191,7 +191,8 @@ const communityFeeds = {
 };
 
 // COMMUNITY DETAIL SCREEN with additional UI elements and filter functionality
-const CommunityDetailScreen = ({ community, onBack, feed, navigation }) => {
+// Note: We now also accept the navigation prop to allow direct navigation
+const CommunityDetailScreen = ({ navigation, community, onBack, feed }) => {
   // New states for toggles
   const [inviteAccepted, setInviteAccepted] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('You');
@@ -201,7 +202,7 @@ const CommunityDetailScreen = ({ community, onBack, feed, navigation }) => {
 
   const theme = communityThemes[community.id] || { backgroundColor: '#fff', accentColor: '#000' };
 
-  // Helper function to return a muted version of the accent color by averaging with white
+  // Helper to get a muted version of the accent color (mixing with white)
   const getMutedColor = (hex) => {
     hex = hex.replace('#', '');
     let r = parseInt(hex.substring(0, 2), 16);
@@ -216,7 +217,7 @@ const CommunityDetailScreen = ({ community, onBack, feed, navigation }) => {
     return `#${hr}${hg}${hb}`;
   };
 
-  // Generate exclusive posts based on community theme and vibe
+  // Generate exclusive posts based on community theme
   const generateExclusivePosts = (community) => {
     if (community.id === 'a') {
       return [
@@ -336,17 +337,20 @@ const CommunityDetailScreen = ({ community, onBack, feed, navigation }) => {
   } else if (selectedFilter === 'Trending') {
     filteredFeed = generateTrendingPosts(community);
   } else if (selectedFilter === 'Pictures') {
-    filteredFeed = feed.filter(post => post.contentImage != null);
-    filteredFeed = filteredFeed.concat(userPosts.filter(post => post.contentImage != null));
+    filteredFeed = feed.filter(post => post.contentImage != null)
+      .concat(userPosts.filter(post => post.contentImage != null));
   } else if (selectedFilter === 'Lives') {
-    // For Justin's community, show a custom live item; for others, leave the feed empty
     if (community.id === 'b') {
+      // For Justin's community, inject a custom live feed item with Justin's live thumbnail.
       filteredFeed = [{
         id: 'JB-live',
-        videoId: 'JB',
-        title: "Community Exclusive: Roasting Fans",
-        thumbnail: require('../assets/justinLive.jpg'),
-        live: true,
+        userName: 'JustinBieber Live',
+        verified: true,
+        userAvatar: require('../assets/justinPP.png'),
+        time: 'Live now',
+        contentText: '',
+        contentImage: require('../assets/justinLive.jpg'),
+        isLive: true,
       }];
     } else {
       filteredFeed = [];
@@ -422,18 +426,7 @@ const CommunityDetailScreen = ({ community, onBack, feed, navigation }) => {
               styles.filterButton,
               selectedFilter === filter && styles.filterButtonSelected,
             ]}
-            onPress={() => {
-              if (filter === 'Lives') {
-                // For Nicki's (a) and Drake's (c) communities, show an alert when Lives is tapped
-                if (community.id === 'a' || community.id === 'c') {
-                  Alert.alert("No Lives", "There are currently no live streams in this community.");
-                } else {
-                  setSelectedFilter('Lives');
-                }
-              } else {
-                setSelectedFilter(filter);
-              }
-            }}
+            onPress={() => setSelectedFilter(filter)}
           >
             <Text
               style={[
@@ -446,68 +439,79 @@ const CommunityDetailScreen = ({ community, onBack, feed, navigation }) => {
           </TouchableOpacity>
         ))}
       </View>
-      {/* Feed */}
+      {/* For the Lives filter, if no live items are present, show a message */}
       {selectedFilter === 'Lives' && filteredFeed.length === 0 ? (
         <View style={styles.noLivesContainer}>
-          <Text style={styles.noLivesText}>No live streams currently.</Text>
+          <Text style={styles.noLivesText}>There are currently no lives in this community.</Text>
         </View>
       ) : (
+        // Otherwise, display the filtered feed.
         <FlatList
           data={filteredFeed}
           keyExtractor={(item) => item.id}
           style={styles.feedContainer}
-          renderItem={({ item }) =>
-            item.live ? (
-              // Render the custom live item for Justin's community
-              <TouchableOpacity
-                style={styles.liveItem}
-                onPress={() => navigation.navigate('LiveViewScreen', { videoId: item.videoId })}
-              >
-                <Image source={item.thumbnail} style={styles.liveThumbnail} />
-                <Text style={styles.liveTitle}>{item.title}</Text>
-              </TouchableOpacity>
-            ) : (
-              // Render a normal post item
-              <View style={styles.post}>
-                <View style={styles.postHeader}>
-                  <Image
-                    source={typeof item.userAvatar === 'string' ? { uri: item.userAvatar } : item.userAvatar}
-                    style={styles.avatar}
-                  />
-                  <View style={styles.postHeaderText}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Text style={styles.userName}>{item.userName}</Text>
-                      {item.verified && (
-                        <Image
-                          source={{ uri: 'https://img.icons8.com/color/20/null/verified-badge.png' }}
-                          style={styles.verifiedIcon}
-                        />
-                      )}
+          renderItem={({ item }) => {
+            if (item.isLive) {
+              // Render a special live item that is clickable.
+              return (
+                <TouchableOpacity
+                  style={styles.liveItem}
+                  onPress={() =>
+                    navigation.navigate('LiveViewScreen', { videoId: 'JB' })
+                  }
+                >
+                  <Image source={item.contentImage} style={styles.liveThumbnail} />
+                  <Text style={styles.liveLabel}>Watch Live</Text>
+                </TouchableOpacity>
+              );
+            } else {
+              // Render a normal post
+              return (
+                <View style={styles.post}>
+                  <View style={styles.postHeader}>
+                    <Image
+                      source={
+                        typeof item.userAvatar === 'string'
+                          ? { uri: item.userAvatar }
+                          : item.userAvatar
+                      }
+                      style={styles.avatar}
+                    />
+                    <View style={styles.postHeaderText}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={styles.userName}>{item.userName}</Text>
+                        {item.verified && (
+                          <Image
+                            source={{ uri: 'https://img.icons8.com/color/20/null/verified-badge.png' }}
+                            style={styles.verifiedIcon}
+                          />
+                        )}
+                      </View>
+                      <Text style={styles.postTime}>{item.time}</Text>
                     </View>
-                    <Text style={styles.postTime}>{item.time}</Text>
+                  </View>
+                  <Text style={styles.postContent}>{item.contentText}</Text>
+                  {item.contentImage && (
+                    <Image
+                      source={typeof item.contentImage === 'string' ? { uri: item.contentImage } : item.contentImage}
+                      style={styles.postImage}
+                    />
+                  )}
+                  <View style={styles.postFooter}>
+                    <TouchableOpacity style={styles.footerButton}>
+                      <Text style={styles.footerButtonText}>Like</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.footerButton}>
+                      <Text style={styles.footerButtonText}>Comment</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.footerButton}>
+                      <Text style={styles.footerButtonText}>Share</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
-                <Text style={styles.postContent}>{item.contentText}</Text>
-                {item.contentImage && (
-                  <Image
-                    source={typeof item.contentImage === 'string' ? { uri: item.contentImage } : item.contentImage}
-                    style={styles.postImage}
-                  />
-                )}
-                <View style={styles.postFooter}>
-                  <TouchableOpacity style={styles.footerButton}>
-                    <Text style={styles.footerButtonText}>Like</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.footerButton}>
-                    <Text style={styles.footerButtonText}>Comment</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.footerButton}>
-                    <Text style={styles.footerButtonText}>Share</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )
-          }
+              );
+            }
+          }}
         />
       )}
     </View>
@@ -519,13 +523,14 @@ const ChorialSocialScreen = ({ navigation }) => {
   const [selectedCommunity, setSelectedCommunity] = useState(null);
 
   if (selectedCommunity) {
+    // Pass navigation to CommunityDetailScreen so it can navigate directly.
     const feed = communityFeeds[selectedCommunity.id] || [];
     return (
       <CommunityDetailScreen
+        navigation={navigation}
         community={selectedCommunity}
         feed={feed}
         onBack={() => setSelectedCommunity(null)}
-        navigation={navigation}
       />
     );
   }
@@ -824,21 +829,21 @@ const styles = StyleSheet.create({
   noLivesText: {
     fontSize: 16,
     color: '#777',
-    textAlign: 'center',
   },
   liveItem: {
-    marginVertical: 10,
     alignItems: 'center',
+    marginBottom: 15,
   },
   liveThumbnail: {
     width: '100%',
-    height: 200,
-    borderRadius: 10,
+    height: 180,
+    borderRadius: 8,
     resizeMode: 'cover',
   },
-  liveTitle: {
-    marginTop: 8,
+  liveLabel: {
+    marginTop: 5,
     fontSize: 16,
+    color: '#2196F3',
     fontWeight: '600',
     textAlign: 'center',
   },

@@ -17,18 +17,18 @@ import { Video } from 'expo-av';
 // LIVE OPTIONS DATA
 // ----------------------------
 const liveOptions = [
-  // {
-  //   id: 'AG',
-  //   title: 'Ariana Grande Live: Promoting New Music',
-  //   video: require('../assets/AGLive.mp4'),
-  //   thumbnail: require('../assets/arianaLive.jpg'),
-  // },
-  // {
-  //   id: 'JB',
-  //   title: 'Community Exclusive: Roasting Fans',
-  //   video: require('../assets/JBLive.mp4'),
-  //   thumbnail: require('../assets/justinLive.jpg'),
-  // },
+  {
+    id: 'AG',
+    title: 'Ariana Grande Live: Promoting New Music',
+    video: require('../assets/AGLive.mp4'),
+    thumbnail: require('../assets/arianaLive.jpg'),
+  },
+  {
+    id: 'JB',
+    title: 'Community Exclusive: Roasting Fans',
+    video: require('../assets/JBLive.mp4'),
+    thumbnail: require('../assets/justinLive.jpg'),
+  },
   {
     id: 'TM',
     title: 'Tate McRae: Concert Live Stream',
@@ -80,9 +80,6 @@ const liveCommentsPreset = {
   ],
 };
 
-// ----------------------------
-// LIVE VIEW SCREEN
-// ----------------------------
 const LiveViewScreen = ({ route, navigation }) => {
   // Get the videoId from navigation parameters
   const initialVideoId = route.params?.videoId || null;
@@ -97,17 +94,21 @@ const LiveViewScreen = ({ route, navigation }) => {
   // Find the active video based on the activeVideoId
   const activeVideo = activeVideoId ? liveOptions.find(video => video.id === activeVideoId) : null;
   
-  // If no active video is found, exit the screen
-  useEffect(() => {
-    if (!activeVideo) {
-      navigation.goBack();
-    }
-  }, [activeVideo, navigation]);
+  // If activeVideo is not found, return a fallback to avoid rendering errors.
+  if (!activeVideo) {
+    // Optionally, you can show a message or trigger a navigation.goBack() here.
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Live video not found.</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
   
   // Load comments when active video changes
   useEffect(() => {
-    if (!activeVideoId) return;
-    
     setComments([]);
     const preset = liveCommentsPreset[activeVideoId] || [];
     let index = 0;
@@ -125,7 +126,7 @@ const LiveViewScreen = ({ route, navigation }) => {
   
   // Handle posting a comment
   const handlePostComment = () => {
-    if (!newComment.trim() || !activeVideoId) return;
+    if (!newComment.trim()) return;
     
     const comment = {
       id: Date.now().toString(),
@@ -202,15 +203,22 @@ const LiveViewScreen = ({ route, navigation }) => {
   );
 };
 
-// ----------------------------
-// STYLES
-// ----------------------------
 const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    fontSize: 18,
+    color: '#444',
+    marginBottom: 20,
   },
   header: {
     flexDirection: 'row',
@@ -245,7 +253,7 @@ const styles = StyleSheet.create({
   },
   video: {
     width: width,
-    height: width * 0.6, // 16:9 aspect ratio
+    height: width * 0.6,
     backgroundColor: '#000',
   },
   commentsList: {
