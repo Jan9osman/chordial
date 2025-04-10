@@ -4,6 +4,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign'; 
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 
 // Screens
 import ProfileScreen from './screens/ProfileScreen';
