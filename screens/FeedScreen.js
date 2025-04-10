@@ -25,7 +25,15 @@ const songs = [
         title: 'Let It Happen',
         artist: 'Tame Impala',
         img_source: require('../assets/currents_cover.jpg'),
-        lyrics: 'These are the lyrics of song one.',
+        lyrics: [
+            {time: 0, text: '♪ ♪'},
+            {time: 11.5, text: 'I cannot vanish'},
+            {time: 13.3, text: 'You will not scare me'},
+            {time: 15.2, text: 'Try to get through it'},
+            {time: 17.3, text: 'Try to bounce to it'},
+            {time: 19.0, text: 'You were not thinkin\''},
+            {time: 20.2, text: 'That I will not do it'},
+        ],
         audio_source: require('../assets/Let_it_happen_clip.mp3'),
         backgroundColor: 'red',
         comments: [
@@ -40,15 +48,15 @@ const songs = [
         artist: 'Frank Ocean',
         img_source: require('../assets/blond_cover.jpeg'),
         audio_source: require('../assets/Ivy_clip.m4a'),
-        lyrics: `I thought that I was dreamin'
-    when you said you love me
-    The start of nothin'
-    I had no chance to prepare, I couldn't see you comin'
-    The start of nothin'
-    Ooh, I could hate you now
-    It's quite alright to hate me now
-    When we both know that deep down
-    The feeling still deep down is good`,
+        lyrics: [
+            {time: 0, text: 'I thought that I was dreamin\' when you said you love me' },
+            {time: 7.5, text: 'The start of nothin\''},
+            {time: 9, text: 'I had no chance to prepare, I couldn\'t see you coming'},
+            {time: 15.8, text: 'The start of nothin\' ooh, I could hate you now'},
+            {time: 21, text: 'It\'s quite alright to hate me now'},
+            {time: 25.5, text: 'When we both know that deep down'},
+            {time: 27.7, text: 'The feeling still deep down, is good'},
+        ],
         backgroundColor: 'darkgrey',
         comments: [
           { profilePic: require('../assets/user3.jpeg'), profileName: 'Charlie', timestamp: null,text: 'Hits deep.' },
@@ -71,6 +79,8 @@ const FeedScreen = () => {
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [sliderValue, setSliderValue] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [currentLyricIndex, setCurrentLyricIndex] = useState(0);
+  const [currentSongPosition, setCurrentSongPosition] = useState(0);  
   const { height, width } = useWindowDimensions();
   const sliderHeight = 40;
 
@@ -109,6 +119,18 @@ const FeedScreen = () => {
       sound.setOnPlaybackStatusUpdate((status) => {
         if (status.isPlaying) {
             setSliderValue(status.positionMillis / status.durationMillis * 100);
+            setCurrentSongPosition(status.positionMillis);
+            
+            for (let i = songs[currentSongIndex].lyrics.length - 1; i >= 0; i--) {
+                // console.log('currentSongPosition', status.positionMillis/1000)
+                // console.log('lyrics time', songs[currentSongIndex].lyrics[i].time)
+
+                if (status.positionMillis/1000 > songs[currentSongIndex].lyrics[i].time) {
+                  setCurrentLyricIndex(i);
+                  console.log('SET INDEX TO: ', i)
+                  break;
+                }
+            }
         }
     });
     } catch (error) {
@@ -129,9 +151,10 @@ const FeedScreen = () => {
     };
   }, [currentSongIndex]);  // Dependency array is the current song index
 
-  // Track the currently visible item in the FlatList
+  // Called when a new song is scrolled to
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     console.log('Item changed,', viewableItems);
+    setPaused(false)
     if (viewableItems.length > 0) {
        setCurrentSongIndex(0);
        setSelectedComments(songs[0].comments);
@@ -209,6 +232,9 @@ const FeedScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={async ()=> {
+            const status = await sound.getStatusAsync();
+            console.log('current timestamp:', status.positionMillis)
+            setCurrentSongPosition(status.positionMillis)
             if (paused){
                 await sound.playAsync();
             } else {
@@ -223,19 +249,42 @@ const FeedScreen = () => {
       </View>
 
       {(comments || lyrics) && (
-        <View
-          style={{
-            justifyContent: 'flex-start',
-            borderRadius: 30,
-            borderWidth: 1,
-            borderColor: 'black',
-            width: '90%',
-            height: 170,
-            marginBottom: '20%',
-            marginTop: '10%',
-            backgroundColor: 'white',
-          }}
-        >
+       <View
+       style={{
+         justifyContent: 'flex-start',
+         borderRadius: 30,
+         borderWidth: 1,
+         borderColor: 'black',
+         width: '90%',
+         maxWidth: 500, // ✅ Limits width on large screens
+         alignSelf: 'center', // ✅ Horizontally centers the container
+         height: '40%',
+         marginBottom: '10%',
+         marginTop: '5%',
+         backgroundColor: 'white',
+       }}>
+         <Text style={{
+            fontSize: 16,
+            fontWeight: 'bold',
+            marginVertical: 6,
+            color: 'black',
+            textAlign: 'center'
+        }}>{comments? "Comments" : "Lyrics"}</Text>
+        <View style={{
+            width: '33%',
+            height: 4,
+            borderRadius: 10,
+            backgroundColor: 'darkgrey',
+            alignSelf: 'center'
+        }}></View>
+
+        <TouchableOpacity style={{ position: 'absolute', top: 10, right: 15 }}
+            onPress={()=>{
+                comments ? setCommentModalVisible(true) : setLyricModalVisible(true)
+            }}>
+            <Ionicons name="chevron-up-outline" size={24} color="black" />
+        </TouchableOpacity>
+
           {comments ? (
             // Comment section
             <ScrollView style={{ marginVertical: 10, width: '90%', height: '80%', paddingLeft: 16 }}>
@@ -265,19 +314,32 @@ const FeedScreen = () => {
           ) : (
             // Lyrics section
             <ScrollView style={{ marginHorizontal: 10, flex: 1, borderRadius: 30 }}>
-               <Text style={{ fontSize: 16, paddingVertical: 3, color: 'lightgrey', marginTop: 14 }}>
-                    We both know that deep down
+            {songs[currentSongIndex].lyrics.map((line, index) => (
+                <TouchableOpacity
+                key={index}
+                onPress={async () => {
+                  if (sound && line.time != null) {
+                    try {
+                      await sound.setPositionAsync(line.time * 1000); // time in seconds → ms
+                    } catch (e) {
+                      console.warn('Failed to seek audio:', e);
+                    }
+                  }
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 24,
+                    paddingVertical: 6,
+                    color: index <= currentLyricIndex ? 'black' : 'gray',
+                    fontWeight: index <= currentLyricIndex ? 'normal' : 'lighter',
+                    textAlign: 'center',
+                  }}
+                >
+                  {line.text}
                 </Text>
-                <Text style={{ fontSize: 16, paddingVertical: 3, color: 'darkgrey' }}>
-                    The feeling still deep down is good
-                </Text>
-                <Text style={{ fontSize: 16, color: 'lightgrey' }}> </Text>
-                <Text style={{ fontSize: 16, paddingVertical: 3, color: 'darkgrey' }}>
-                    If I could see through walls
-                </Text>
-                <Text style={{ fontSize: 16, paddingVertical: 3, color: 'darkgrey' }}>
-                    I could see you're faking
-                </Text>
+              </TouchableOpacity>
+            ))}
             </ScrollView>
           )}
         </View>
@@ -308,7 +370,7 @@ const FeedScreen = () => {
         keyExtractor={(item) => item.id}
         pagingEnabled={true}
         horizontal={false}
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator={false}
         snapToInterval={flatListHeight}
         snapToAlignment="start"
         decelerationRate="fast"
@@ -329,7 +391,7 @@ const FeedScreen = () => {
       >
         
         <Slider
-            style={{ width: '90%', height: 20 }}
+            style={{ width: '100%', height: 20 }}
             tapToSeek={true}
             minimumValue={0}
             maximumValue={100}
