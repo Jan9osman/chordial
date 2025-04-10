@@ -8,6 +8,7 @@ import {
   FlatList,
   TouchableOpacity,
   KeyboardAvoidingView,
+  ScrollView,
   Platform,
   Dimensions,
 } from 'react-native';
@@ -86,17 +87,16 @@ const LiveViewScreen = ({ route, navigation }) => {
   const [activeVideoId] = useState(initialVideoId);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
-  
+
   // REFS
   const videoRef = useRef(null);
   const flatListRef = useRef(null);
-  
+
   // Find the active video based on the activeVideoId
   const activeVideo = activeVideoId ? liveOptions.find(video => video.id === activeVideoId) : null;
-  
-  // If activeVideo is not found, return a fallback to avoid rendering errors.
+
+  // If no active video is found, show an error view with a back button
   if (!activeVideo) {
-    // Optionally, you can show a message or trigger a navigation.goBack() here.
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Live video not found.</Text>
@@ -106,7 +106,7 @@ const LiveViewScreen = ({ route, navigation }) => {
       </View>
     );
   }
-  
+
   // Load comments when active video changes
   useEffect(() => {
     setComments([]);
@@ -120,46 +120,45 @@ const LiveViewScreen = ({ route, navigation }) => {
         clearInterval(interval);
       }
     }, 1500);
-    
     return () => clearInterval(interval);
   }, [activeVideoId]);
-  
+
   // Handle posting a comment
   const handlePostComment = () => {
     if (!newComment.trim()) return;
-    
     const comment = {
       id: Date.now().toString(),
       user: 'You',
-      comment: newComment
+      comment: newComment,
     };
-    
     setComments(prev => [...prev, comment]);
     setNewComment('');
-    
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100);
   };
-  
+
+  // On web, use a ScrollView instead of KeyboardAvoidingView
+  const isWeb = Platform.OS === 'web';
+  const Container = isWeb ? ScrollView : KeyboardAvoidingView;
+
   return (
     <View style={styles.container}>
-      {/* HEADER - Always visible */}
+      {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Lives</Text>
-        {/* Back button uses navigation.goBack() to return to the Lives tab */}
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
       </View>
-      
+
       {/* CONTENT */}
-      <KeyboardAvoidingView 
-        style={styles.content} 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      <Container
+        style={styles.content}
+        behavior={isWeb ? undefined : (Platform.OS === 'ios' ? 'padding' : undefined)}
       >
+        {/* Video */}
         <View style={styles.videoContainer}>
-          {/* Video Player */}
           <Video
             ref={videoRef}
             source={activeVideo.video}
@@ -170,8 +169,10 @@ const LiveViewScreen = ({ route, navigation }) => {
             useNativeControls={false}
             volume={1.0}
           />
-          
-          {/* Comments List */}
+        </View>
+
+        {/* Comments List */}
+        <View style={styles.commentsContainer}>
           <FlatList
             ref={flatListRef}
             data={comments}
@@ -184,21 +185,21 @@ const LiveViewScreen = ({ route, navigation }) => {
               </View>
             )}
           />
-          
-          {/* Comment Input */}
-          <View style={styles.inputContainer}>
-            <TextInput
-              value={newComment}
-              onChangeText={setNewComment}
-              placeholder="Type a comment..."
-              style={styles.input}
-            />
-            <TouchableOpacity onPress={handlePostComment} style={styles.sendButton}>
-              <Text style={styles.sendButtonText}>Send</Text>
-            </TouchableOpacity>
-          </View>
         </View>
-      </KeyboardAvoidingView>
+
+        {/* Comment Input */}
+        <View style={styles.inputContainer}>
+          <TextInput
+            value={newComment}
+            onChangeText={setNewComment}
+            placeholder="Type a comment..."
+            style={styles.input}
+          />
+          <TouchableOpacity onPress={handlePostComment} style={styles.sendButton}>
+            <Text style={styles.sendButtonText}>Send</Text>
+          </TouchableOpacity>
+        </View>
+      </Container>
     </View>
   );
 };
@@ -249,15 +250,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   videoContainer: {
-    flex: 1,
-  },
-  video: {
-    width: width,
-    height: width * 0.6,
+    width: '100%',
+    height: width * 0.6, // 16:9 aspect ratio
     backgroundColor: '#000',
   },
-  commentsList: {
+  video: {
+    width: '100%',
+    height: '100%',
+  },
+  commentsContainer: {
     flex: 1,
+  },
+  commentsList: {
     padding: 10,
   },
   commentItem: {
