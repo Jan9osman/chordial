@@ -8,6 +8,7 @@ import {
   Image,
   StyleSheet,
   Alert,
+  TextInput,
 } from 'react-native';
 
 // UPDATED LIVES DATA using local assets for thumbnails with new IDs
@@ -80,7 +81,7 @@ const communityThemes = {
   },
 };
 
-// FEED DATA for each community
+// FEED DATA for each community (base feed)
 const communityFeeds = {
   a: [
     {
@@ -189,9 +190,170 @@ const communityFeeds = {
   ],
 };
 
-// COMMUNITY DETAIL SCREEN with additional UI elements
-const CommunityDetailScreen = ({ community, onBack, feed }) => {
+// COMMUNITY DETAIL SCREEN with additional UI elements and filter functionality
+const CommunityDetailScreen = ({ community, onBack, feed, navigation }) => {
+  // New states for toggles
+  const [inviteAccepted, setInviteAccepted] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState('You');
+  const [isWritingPost, setIsWritingPost] = useState(false);
+  const [postText, setPostText] = useState('');
+  const [userPosts, setUserPosts] = useState([]);
+
   const theme = communityThemes[community.id] || { backgroundColor: '#fff', accentColor: '#000' };
+
+  // Helper function to return a muted version of the accent color by averaging with white
+  const getMutedColor = (hex) => {
+    hex = hex.replace('#', '');
+    let r = parseInt(hex.substring(0, 2), 16);
+    let g = parseInt(hex.substring(2, 4), 16);
+    let b = parseInt(hex.substring(4, 6), 16);
+    r = Math.floor((r + 255) / 2);
+    g = Math.floor((g + 255) / 2);
+    b = Math.floor((b + 255) / 2);
+    const hr = r.toString(16).padStart(2, '0');
+    const hg = g.toString(16).padStart(2, '0');
+    const hb = b.toString(16).padStart(2, '0');
+    return `#${hr}${hg}${hb}`;
+  };
+
+  // Generate exclusive posts based on community theme and vibe
+  const generateExclusivePosts = (community) => {
+    if (community.id === 'a') {
+      return [
+        {
+          id: 'exclusive-a-1',
+          userName: 'NickiMinajOfficial',
+          verified: true,
+          userAvatar: require('../assets/nickiPP.png'),
+          time: '1h',
+          contentText: "Exclusive behind the scenes: new tracks dropping soon! #VIP",
+          contentImage: require('../assets/vinyl.jpg'),
+        },
+        {
+          id: 'exclusive-a-2',
+          userName: 'BarbzVIP',
+          verified: false,
+          userAvatar: 'https://i.pravatar.cc/80?img=50',
+          time: '2h',
+          contentText: "VIP access granted! Sneak peek of the upcoming project.",
+          contentImage: null,
+        },
+      ];
+    } else if (community.id === 'b') {
+      return [
+        {
+          id: 'exclusive-b-1',
+          userName: 'JustinBieber',
+          verified: true,
+          userAvatar: require('../assets/justinPP.png'),
+          time: '30m',
+          contentText: "Exclusive acoustic version live now! #Beliebers",
+          contentImage: 'https://via.placeholder.com/300x200/000?text=Acoustic',
+        },
+        {
+          id: 'exclusive-b-2',
+          userName: 'BelieberInsider',
+          verified: false,
+          userAvatar: 'https://i.pravatar.cc/80?img=51',
+          time: '1h',
+          contentText: "Behind the scenes with Justin – you won't believe what happens next!",
+          contentImage: null,
+        },
+      ];
+    } else if (community.id === 'c') {
+      return [
+        {
+          id: 'exclusive-c-1',
+          userName: 'Drake',
+          verified: true,
+          userAvatar: require('../assets/drake.png'),
+          time: '45m',
+          contentText: "Exclusive clip: New beat dropping soon! #OVOExclusive",
+          contentImage: 'https://via.placeholder.com/300x200/222?text=New+Beat',
+        },
+        {
+          id: 'exclusive-c-2',
+          userName: 'OVOExclusive',
+          verified: false,
+          userAvatar: 'https://i.pravatar.cc/80?img=52',
+          time: '1h',
+          contentText: "Drake reveals secret studio session. Top secret!",
+          contentImage: null,
+        },
+      ];
+    }
+    return [];
+  };
+
+  // Generate trending posts for the community
+  const generateTrendingPosts = (community) => {
+    if (community.id === 'a') {
+      return [
+        {
+          id: 'trending-a-1',
+          userName: 'BarbzTrending',
+          verified: false,
+          userAvatar: 'https://i.pravatar.cc/80?img=53',
+          time: '10m',
+          contentText: "Trending now: Nicki's new hit is on repeat!",
+          contentImage: require('../assets/vinyl.jpg'),
+        },
+      ];
+    } else if (community.id === 'b') {
+      return [
+        {
+          id: 'trending-b-1',
+          userName: 'BelieberBuzz',
+          verified: false,
+          userAvatar: 'https://i.pravatar.cc/80?img=54',
+          time: '15m',
+          contentText: "Trending: Justin's live remix is blowing up!",
+          contentImage: 'https://via.placeholder.com/300x200/FFD700/000?text=Live+Remix',
+        },
+      ];
+    } else if (community.id === 'c') {
+      return [
+        {
+          id: 'trending-c-1',
+          userName: 'OVOTrend',
+          verified: true,
+          userAvatar: require('../assets/drake.png'),
+          time: '5m',
+          contentText: "Trending now: Drake's hottest drop of the season!",
+          contentImage: 'https://via.placeholder.com/300x200/808080/FFF?text=Hot+Drop',
+        },
+      ];
+    }
+    return [];
+  };
+
+  // Determine feed to display based on the selected filter
+  let filteredFeed = [];
+  if (selectedFilter === 'You') {
+    filteredFeed = userPosts;
+  } else if (selectedFilter === 'Exclusive Content') {
+    filteredFeed = generateExclusivePosts(community);
+  } else if (selectedFilter === 'Trending') {
+    filteredFeed = generateTrendingPosts(community);
+  } else if (selectedFilter === 'Pictures') {
+    filteredFeed = feed.filter(post => post.contentImage != null);
+    filteredFeed = filteredFeed.concat(userPosts.filter(post => post.contentImage != null));
+  } else if (selectedFilter === 'Lives') {
+    // For Justin's community, show a custom live item; for others, leave the feed empty
+    if (community.id === 'b') {
+      filteredFeed = [{
+        id: 'JB-live',
+        videoId: 'JB',
+        title: "Community Exclusive: Roasting Fans",
+        thumbnail: require('../assets/justinLive.jpg'),
+        live: true,
+      }];
+    } else {
+      filteredFeed = [];
+    }
+  } else {
+    filteredFeed = feed;
+  }
 
   return (
     <View style={[styles.communityDetailContainer, { backgroundColor: theme.backgroundColor }]}>
@@ -201,71 +363,153 @@ const CommunityDetailScreen = ({ community, onBack, feed }) => {
       <Text style={[styles.communityTitle, { color: theme.accentColor }]}>{community.name}</Text>
       <Text style={[styles.membersText, { color: theme.accentColor }]}>{community.members} Members</Text>
       <TouchableOpacity
+        onPress={() => setInviteAccepted(true)}
         style={[
           styles.inviteButton,
-          { backgroundColor: theme.accentColor, shadowColor: theme.accentColor },
+          {
+            backgroundColor: inviteAccepted
+              ? getMutedColor(theme.accentColor)
+              : theme.accentColor,
+            shadowColor: theme.accentColor,
+          },
         ]}
       >
-        <Text style={styles.inviteButtonText}>Accept Invite</Text>
+        <Text style={styles.inviteButtonText}>
+          {inviteAccepted ? 'Invite Accepted' : 'Accept Invite'}
+        </Text>
       </TouchableOpacity>
       {/* Write a Post Section */}
-      <TouchableOpacity style={styles.writePostButton} onPress={() => Alert.alert('Write Post', 'Compose your post')}>
+      <TouchableOpacity style={styles.writePostButton} onPress={() => setIsWritingPost(!isWritingPost)}>
         <Text style={styles.writePostText}>Write a Post...</Text>
       </TouchableOpacity>
+      {isWritingPost && (
+        <View style={styles.writePostContainer}>
+          <TextInput
+            style={styles.writePostInput}
+            placeholder="Compose your post..."
+            value={postText}
+            onChangeText={setPostText}
+          />
+          <TouchableOpacity
+            style={styles.submitPostButton}
+            onPress={() => {
+              if (postText.trim()) {
+                const newPost = {
+                  id: Date.now().toString(),
+                  userName: 'You',
+                  verified: false,
+                  userAvatar: 'https://i.pravatar.cc/80?img=100',
+                  time: 'Just now',
+                  contentText: postText,
+                  contentImage: null,
+                };
+                setUserPosts(prev => [newPost, ...prev]);
+                setPostText('');
+                setIsWritingPost(false);
+              }
+            }}
+          >
+            <Text style={styles.submitPostButtonText}>Submit Post</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       {/* Filter Buttons */}
       <View style={styles.filterContainer}>
         {['You', 'Exclusive Content', 'Lives', 'Pictures', 'Trending'].map((filter) => (
-          <TouchableOpacity key={filter} style={styles.filterButton}>
-            <Text style={styles.filterButtonText}>{filter}</Text>
+          <TouchableOpacity
+            key={filter}
+            style={[
+              styles.filterButton,
+              selectedFilter === filter && styles.filterButtonSelected,
+            ]}
+            onPress={() => {
+              if (filter === 'Lives') {
+                // For Nicki's (a) and Drake's (c) communities, show an alert when Lives is tapped
+                if (community.id === 'a' || community.id === 'c') {
+                  Alert.alert("No Lives", "There are currently no live streams in this community.");
+                } else {
+                  setSelectedFilter('Lives');
+                }
+              } else {
+                setSelectedFilter(filter);
+              }
+            }}
+          >
+            <Text
+              style={[
+                styles.filterButtonText,
+                selectedFilter === filter && styles.filterButtonTextSelected,
+              ]}
+            >
+              {filter}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
       {/* Feed */}
-      <FlatList
-        data={feed}
-        keyExtractor={(item) => item.id}
-        style={styles.feedContainer}
-        renderItem={({ item }) => (
-          <View style={styles.post}>
-            <View style={styles.postHeader}>
-              <Image
-                source={typeof item.userAvatar === 'string' ? { uri: item.userAvatar } : item.userAvatar}
-                style={styles.avatar}
-              />
-              <View style={styles.postHeaderText}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={styles.userName}>{item.userName}</Text>
-                  {item.verified && (
-                    <Image
-                      source={{ uri: 'https://img.icons8.com/color/20/null/verified-badge.png' }}
-                      style={styles.verifiedIcon}
-                    />
-                  )}
+      {selectedFilter === 'Lives' && filteredFeed.length === 0 ? (
+        <View style={styles.noLivesContainer}>
+          <Text style={styles.noLivesText}>No live streams currently.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredFeed}
+          keyExtractor={(item) => item.id}
+          style={styles.feedContainer}
+          renderItem={({ item }) =>
+            item.live ? (
+              // Render the custom live item for Justin's community
+              <TouchableOpacity
+                style={styles.liveItem}
+                onPress={() => navigation.navigate('LiveViewScreen', { videoId: item.videoId })}
+              >
+                <Image source={item.thumbnail} style={styles.liveThumbnail} />
+                <Text style={styles.liveTitle}>{item.title}</Text>
+              </TouchableOpacity>
+            ) : (
+              // Render a normal post item
+              <View style={styles.post}>
+                <View style={styles.postHeader}>
+                  <Image
+                    source={typeof item.userAvatar === 'string' ? { uri: item.userAvatar } : item.userAvatar}
+                    style={styles.avatar}
+                  />
+                  <View style={styles.postHeaderText}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Text style={styles.userName}>{item.userName}</Text>
+                      {item.verified && (
+                        <Image
+                          source={{ uri: 'https://img.icons8.com/color/20/null/verified-badge.png' }}
+                          style={styles.verifiedIcon}
+                        />
+                      )}
+                    </View>
+                    <Text style={styles.postTime}>{item.time}</Text>
+                  </View>
                 </View>
-                <Text style={styles.postTime}>{item.time}</Text>
+                <Text style={styles.postContent}>{item.contentText}</Text>
+                {item.contentImage && (
+                  <Image
+                    source={typeof item.contentImage === 'string' ? { uri: item.contentImage } : item.contentImage}
+                    style={styles.postImage}
+                  />
+                )}
+                <View style={styles.postFooter}>
+                  <TouchableOpacity style={styles.footerButton}>
+                    <Text style={styles.footerButtonText}>Like</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.footerButton}>
+                    <Text style={styles.footerButtonText}>Comment</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.footerButton}>
+                    <Text style={styles.footerButtonText}>Share</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-            <Text style={styles.postContent}>{item.contentText}</Text>
-            {item.contentImage && (
-              <Image
-                source={typeof item.contentImage === 'string' ? { uri: item.contentImage } : item.contentImage}
-                style={styles.postImage}
-              />
-            )}
-            <View style={styles.postFooter}>
-              <TouchableOpacity style={styles.footerButton}>
-                <Text style={styles.footerButtonText}>Like</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.footerButton}>
-                <Text style={styles.footerButtonText}>Comment</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.footerButton}>
-                <Text style={styles.footerButtonText}>Share</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      />
+            )
+          }
+        />
+      )}
     </View>
   );
 };
@@ -281,6 +525,7 @@ const ChorialSocialScreen = ({ navigation }) => {
         community={selectedCommunity}
         feed={feed}
         onBack={() => setSelectedCommunity(null)}
+        navigation={navigation}
       />
     );
   }
@@ -317,10 +562,7 @@ const ChorialSocialScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate('LiveViewScreen', { videoId: video.id })}
               >
                 <View style={styles.videoThumbnailWrapper}>
-                  <Image
-                    source={video.thumbnail}
-                    style={styles.videoThumbnail}
-                  />
+                  <Image source={video.thumbnail} style={styles.videoThumbnail} />
                   <Image
                     source={{ uri: 'https://img.icons8.com/ios-filled/50/ffffff/play--v1.png' }}
                     style={styles.playIcon}
@@ -339,10 +581,7 @@ const ChorialSocialScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate('LiveViewScreen', { videoId: video.id })}
               >
                 <View style={styles.videoThumbnailWrapper}>
-                  <Image
-                    source={video.thumbnail}
-                    style={styles.videoThumbnail}
-                  />
+                  <Image source={video.thumbnail} style={styles.videoThumbnail} />
                   <Image
                     source={{ uri: 'https://img.icons8.com/ios-filled/50/ffffff/play--v1.png' }}
                     style={styles.playIcon}
@@ -532,6 +771,26 @@ const styles = StyleSheet.create({
     color: '#555',
     textAlign: 'center',
   },
+  writePostContainer: {
+    marginVertical: 10,
+  },
+  writePostInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 5,
+  },
+  submitPostButton: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  submitPostButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
   filterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -545,12 +804,43 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     backgroundColor: '#fff',
   },
+  filterButtonSelected: {
+    backgroundColor: '#2196F3',
+  },
   filterButtonText: {
     fontSize: 14,
     color: '#444',
   },
+  filterButtonTextSelected: {
+    color: '#fff',
+  },
   feedContainer: {
     flex: 1,
+  },
+  noLivesContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  noLivesText: {
+    fontSize: 16,
+    color: '#777',
+    textAlign: 'center',
+  },
+  liveItem: {
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  liveThumbnail: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    resizeMode: 'cover',
+  },
+  liveTitle: {
+    marginTop: 8,
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   post: {
     backgroundColor: '#fff',
