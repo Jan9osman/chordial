@@ -84,6 +84,17 @@ const FeedScreen = () => {
   const { height, width } = useWindowDimensions();
   const sliderHeight = 40;
 
+  const [commentText, setCommentText] = useState('');
+
+  const handleSendComment = () => {
+    if (commentText.trim() === '') return;
+
+    // Add logic to send the comment
+    console.log('Send comment:', commentText);
+
+    setCommentText('');
+  };
+
   const selectComments = (comments) => {
     console.log('comments selected');
 
@@ -122,8 +133,6 @@ const FeedScreen = () => {
             setCurrentSongPosition(status.positionMillis);
             
             for (let i = songs[currentSongIndex].lyrics.length - 1; i >= 0; i--) {
-                // console.log('currentSongPosition', status.positionMillis/1000)
-                // console.log('lyrics time', songs[currentSongIndex].lyrics[i].time)
 
                 if (status.positionMillis/1000 > songs[currentSongIndex].lyrics[i].time) {
                   setCurrentLyricIndex(i);
@@ -171,6 +180,7 @@ const FeedScreen = () => {
     const focusListener = navigation.addListener('focus', () => {
       if (sound) {
         sound.playAsync(); // Play audio when screen is focused
+        setPaused(false)
       }
     });
 
@@ -290,12 +300,12 @@ const FeedScreen = () => {
             <ScrollView style={{ marginVertical: 10, width: '90%', height: '80%', paddingLeft: 16 }}>
               {selectedComments.map((comment, index) => (
                 <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                  <Image source={comment.profilePic} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }} />
+                  <Image source={comment.profilePic} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ color: 'black', fontWeight: 'bold', marginRight: 10 }}>{comment.profileName}</Text>
-                        {comment.timestamp && <Text style={{ color: 'blue', fontSize: 12 }}>{comment.timestamp}</Text>}
+                        <Text style={{ color: 'black', fontWeight: 'bold', marginRight: 10, fontSize: 16 }}>{comment.profileName}</Text>
+                        {comment.timestamp && <Text style={{ color: 'blue', fontSize: 13 }}>{comment.timestamp}</Text>}
                       </View>
                       <View style={{ flexDirection: 'row' }}>
                         <TouchableOpacity style={{ marginRight: 10 }}>
@@ -306,7 +316,7 @@ const FeedScreen = () => {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    <Text style={{ color: 'black', marginTop: 2 }}>{comment.text}</Text>
+                    <Text style={{ color: 'black', marginTop: 2, fontSize: 14 }}>{comment.text}</Text>
                   </View>
                 </View>
               ))}
@@ -344,6 +354,164 @@ const FeedScreen = () => {
           )}
         </View>
       )}
+    {/*Comment Modal */}
+    <Modal
+        visible={commentModalVisible}
+        animationType="slide"
+        onRequestClose={() => setCommentModalVisible(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 50 }}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginBottom: 10 }}>Comments</Text>
+          <View style={{
+            width: '33%',
+            height: 4,
+            borderRadius: 10,
+            backgroundColor: 'darkgrey',
+            alignSelf: 'center'
+        }}></View>
+          <ScrollView style={{ paddingHorizontal: 20 }}>
+            {selectedComments.map((comment, index) => (
+              <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                <Image source={comment.profilePic} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Text style={{ color: 'black', fontWeight: 'bold', marginRight: 10, fontSize: 16 }}>{comment.profileName}</Text>
+                      {comment.timestamp && <Text style={{ color: 'blue', fontSize: 13 }}>{comment.timestamp}</Text>}
+                    </View>
+                    <View style={{ flexDirection: 'row' }}>
+                      <TouchableOpacity style={{ marginRight: 10 }}>
+                        <Ionicons name="heart-outline" size={20} color="black" />
+                      </TouchableOpacity>
+                      <TouchableOpacity>
+                        <Ionicons name="chatbubble-outline" size={20} color="black" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  <Text style={{ color: 'black', marginTop: 2, fontSize: 14 }}>{comment.text}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+
+          <TouchableOpacity
+            style={{ position: 'absolute', top: 40, right: 20 }}
+            onPress={() => setCommentModalVisible(false)}
+          >
+            <Ionicons name="chevron-down-outline" size={30} color="black" />
+          </TouchableOpacity>
+        </View>
+
+        <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderTopWidth: 1,
+        borderTopColor: '#ddd',
+        backgroundColor: '#f9f9f9',
+      }}
+    >
+      <TextInput
+        style={{
+          flex: 1,
+          height: 38,
+          borderWidth: 1,
+          borderColor: '#ccc',
+          borderRadius: 20,
+          paddingHorizontal: 12,
+          fontSize: 14,
+          backgroundColor: '#fff',
+        }}
+        placeholder="Write a comment..."
+        placeholderTextColor="#999"
+        value={commentText}
+        onChangeText={setCommentText}
+      />
+      <TouchableOpacity
+        style={{
+          marginLeft: 8,
+          backgroundColor: '#007BFF',
+          paddingVertical: 6,
+          paddingHorizontal: 12,
+          borderRadius: 18,
+        }}
+        onPress={handleSendComment}
+      >
+        <Text
+          style={{
+            color: '#fff',
+            fontSize: 14,
+            fontWeight: 'bold',
+          }}
+        >
+          Send
+        </Text>
+      </TouchableOpacity>
+    </View>
+      </Modal>
+
+      {/* Lyric Modal */}
+      <Modal visible={lyricModalVisible} animationType="slide" onRequestClose={() => setLyricModalVisible(false)}>
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
+          <Text
+            style={{
+              fontSize: 24,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              marginTop: 40,
+              marginBottom: 10,
+            }}
+          >
+            {songs[currentSongIndex].title} - Lyrics
+          </Text>
+          <View style={{
+            width: '33%',
+            height: 4,
+            borderRadius: 10,
+            backgroundColor: 'darkgrey',
+            alignSelf: 'center'
+        }}></View>
+
+          <ScrollView contentContainerStyle={{ padding: 20 }}>
+            {songs[currentSongIndex].lyrics.map((line, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={async () => {
+                  if (sound && line.time != null) {
+                    try {
+                      await sound.setPositionAsync(line.time * 1000); // time in seconds → ms
+                    } catch (e) {
+                      console.warn('Failed to seek audio:', e);
+                    }
+                  }
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 24,
+                    color: index <= currentLyricIndex ? 'black' : 'gray',
+                    fontWeight: index <= currentLyricIndex ? 'normal' : 'lighter',
+                    textAlign: 'center',
+                    paddingVertical: 10,
+                  }}
+                >
+                  {line.text}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <TouchableOpacity
+            style={{ position: 'absolute', top: 30, right: 20 }}
+            onPress={() => setLyricModalVisible(false)}
+          >
+            <Ionicons name="chevron-down-outline" size={30} color="black" />
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
     </View>
   );
 
