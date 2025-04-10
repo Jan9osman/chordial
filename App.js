@@ -89,7 +89,7 @@ const App = () => {
           <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
           <Stack.Screen name="MainApp" component={TabNavigator} />
           <Stack.Screen name="Notifications" component={NotificationScreen} />
-          <Stack.Screen name="ArianaLive" component={LiveViewScreen} />
+          <Stack.Screen name="LiveViewScreen" component={LiveViewScreen} />
         </Stack.Navigator>
       </MobileFrame>
     </NavigationContainer>
