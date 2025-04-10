@@ -19,7 +19,7 @@ import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation for navigation events
 import Autocomplete from 'react-native-autocomplete-input';
 
-const songTitles = ['Ivy', 'Let It Happen'];
+const songTitles = ['Ivy', 'Let It Happen', 'Rolling in the Deep', 'Uptown Funk', 'Shape of You', 'Blinding Lights', 'Somebody That I Used to Know', 'Royals', 'We Found Love', 'Old Town Road', 'Despacito', 'Bad Guy', 'Happy', 'Take Me to Church', 'Thinking Out Loud', 'Call Me Maybe', 'Radioactive', 'Can’t Stop the Feeling!', 'God’s Plan', 'Closer', 'Stay With Me', 'Get Lucky'];
 
 const songs = [
     {
@@ -585,7 +585,7 @@ const FeedScreen = () => {
         {/* Search Bar Text Input */}
         {isSearchActive && (
     <Autocomplete
-      data={isSearchActive ? filteredData : []}
+      data={isSearchActive ? filteredData.slice(0, 5) : []}
       defaultValue={query}
       onChangeText={handleSearchChange}
       placeholder="Search song..."
@@ -597,7 +597,10 @@ const FeedScreen = () => {
       flatListProps={{
         keyExtractor: (_, idx) => idx.toString(),
         renderItem: ({ item }) => (
-          <TouchableOpacity onPress={() => handleSelect(item)}>
+          <TouchableOpacity onPress={() => {
+            console.log("search item selected")
+            handleSelect(item)
+            }}>
             <Text style={{ padding: 10 }}>{item}</Text>
           </TouchableOpacity>
         ),
