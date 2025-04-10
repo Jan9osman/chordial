@@ -2,7 +2,7 @@
 
 ## 🚀 Open the App
 
-Please visit **[Netlify URL]** to view our app in **Google Chrome**.
+Please visit **https://resplendent-moxie-2d5467.netlify.app/** to view our app in **Google Chrome**.
 
 ---
 
