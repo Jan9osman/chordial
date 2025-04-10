@@ -62,7 +62,38 @@ _(Add content here)_
 
 ### 💬 Messaging Page
 
-_(Add content here)_
+1. Click the **Messages** icon in the bottom navigation bar.
+2. You'll see two tabs: Friends and Groups.
+3. Tap on the Friends tab to view private chats.
+4. Chats with new messages will show a blue dot and bold text.
+5. Click on **Karen** to view your chat with her
+6. Type your message in the text input at the bottom. eg. "I like that song too!"
+7. Press **Send** to send your message.
+8. Your messages will appear in blue bubbles on the right.
+9. Messages from others appear in gray bubbles on the left.
+10. Tap the Back icon in the top left to return to the message list.
+11. Tap the **+** button in the bottom right to start a new chat.
+12. In the modal, enter the name "Jake"
+13. If typing a known friend (Jake), tap the suggestion to auto-fill.
+14. Tap Start Chat to create the chat.
+15. For groups, tap to select multiple friends as members.
+16. Tap Cancel to close the modal without creating a chat.
+17. Tap on the **Groups** tab to view your group chats.
+18. Chats with new messages will show a blue dot and bold text.
+19. Click on **Indie Music Lovers** to open the group conversation.
+20. Type your message in the text input at the bottom. e.g., "Love the new track!"
+21. Press **Send** to send your message to the group.
+22. Your messages will appear in blue bubbles on the right.
+23. Messages from other members appear in gray bubbles on the left.
+24. The sender's name appears above each message in group chats.
+25. Tap the Back icon in the top left to return to the chat list.
+26. Tap the **+** button in the bottom right to start a new group chat.
+27. In the modal, enter a group name, e.g., "Festival Crew"
+28. Scroll through your list of friends and tap to select members.
+29. Choose a group icon by tapping one of the available images.
+30. Tap Start Chat to create the group chat.
+31. Tap Cancel to close the modal without creating a chat.
+32. Any messages sent during this session will persist until you refresh the app.
 
 ---
 
