@@ -17,7 +17,9 @@ import Slider from '@react-native-community/slider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation for navigation events
+import Autocomplete from 'react-native-autocomplete-input';
 
+const songTitles = ['Ivy', 'Let It Happen'];
 
 const songs = [
     {
@@ -87,6 +89,25 @@ const FeedScreen = () => {
   const [searchText, setSearchText] = useState('');
   const sliderHeight = 40;
   const [commentText, setCommentText] = useState('');
+  const [ query, setQuery ] = useState('');
+  const [filteredData, setFilteredData] = useState([]);
+  
+  
+  const handleSearchChange = (text) => {
+    setQuery(text);
+    const filtered = songTitles.filter((item) =>
+      item.toLowerCase().includes(text.toLowerCase())
+    );
+    setFilteredData(filtered);
+  };
+  
+  const handleSelect = (item) => {
+    setQuery(item);
+    setFilteredData([]);
+    console.log('Selected:', item);
+    // You can do more with the selected item here
+  };
+
 
   // Function to toggle the search field visibility
   const handleSearchPress = () => {
@@ -326,7 +347,9 @@ const FeedScreen = () => {
 
           {comments ? (
             // Comment section
-            <ScrollView style={{ marginVertical: 10, width: '90%', height: '80%', paddingLeft: 16 }}>
+            <ScrollView 
+              showsVerticalScrollIndicator={false}
+              style={{ marginVertical: 10, width: '90%', height: '80%', paddingLeft: 16 }}>
               {selectedComments.map((comment, index) => (
                 <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
                   <Image source={comment.profilePic} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
@@ -352,7 +375,9 @@ const FeedScreen = () => {
             </ScrollView>
           ) : (
             // Lyrics section
-            <ScrollView style={{ marginHorizontal: 10, flex: 1, borderRadius: 30 }}>
+            <ScrollView 
+              showsVerticalScrollIndicator={false}
+              style={{ marginHorizontal: 10, flex: 1, borderRadius: 30 }}>
             {songs[currentSongIndex].lyrics.map((line, index) => (
                 <TouchableOpacity
                 key={index}
@@ -553,32 +578,45 @@ const FeedScreen = () => {
     {/* Search Icon and Text Input */}
       <View style={{ position: 'absolute', top: 25, right: 20, zIndex: 1, flexDirection: 'row', alignItems: 'center' }}>
         {/* Search Icon */}
-        <TouchableOpacity onPress={handleSearchPress}>
+        <TouchableOpacity onPress={handleSearchPress} style={{marginRight: 10}}>
           <Ionicons name="search" size={24} color="white" />
         </TouchableOpacity>
 
-        {/* Text Input */}
+        {/* Search Bar Text Input */}
         {isSearchActive && (
-          <TextInput
-            style={{
-              marginLeft: 10,
-              backgroundColor: 'white',
-              paddingHorizontal: 10,
-              height: 40,
-              width: '120%', // Adjust width as needed
-              borderRadius: 20,
-              fontSize: 16,
-            }}
-            placeholder="Search..."
-            autoFocus={true}
-            value={searchText}
-            onChangeText={setSearchText}
-            onSubmitEditing={handleSearchSubmit}  // Called when user presses enter
-            returnKeyType="search"  // Adjust the return key to show 'search'
-            onBlur={handleBlur}  // Called when the input loses focus
-
-          />
-        )}
+    <Autocomplete
+      data={isSearchActive ? filteredData : []}
+      defaultValue={query}
+      onChangeText={handleSearchChange}
+      placeholder="Search song..."
+      onFocus={() => setIsSearchActive(true)}
+      onBlur={() => {
+        setIsSearchActive(false);
+        setFilteredData([]);
+      }}
+      flatListProps={{
+        keyExtractor: (_, idx) => idx.toString(),
+        renderItem: ({ item }) => (
+          <TouchableOpacity onPress={() => handleSelect(item)}>
+            <Text style={{ padding: 10 }}>{item}</Text>
+          </TouchableOpacity>
+        ),
+        keyboardShouldPersistTaps: 'handled',
+      }}
+      inputContainerStyle={{
+        borderWidth: 0,
+        borderRadius: 5,
+        backgroundColor: 'white',
+        paddingHorizontal: 10,
+      }}
+      listContainerStyle={{
+        backgroundColor: 'white',
+        borderRadius: 5,
+        marginTop: 5,
+        maxHeight: isSearchActive ? 150 : 0,
+      }}
+    />
+)}
       </View>
       <FlatList
         onLayout={(event) => {
