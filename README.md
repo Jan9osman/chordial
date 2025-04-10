@@ -2,7 +2,7 @@
 
 ## 🚀 Open the App
 
-Please visit **https://resplendent-moxie-2d5467.netlify.app/** to view our app in **Google Chrome**.
+Please visit **https://cpsc481-t10-g4-chordial.netlify.app/** to view our app in **Google Chrome**.
 
 ---
 
