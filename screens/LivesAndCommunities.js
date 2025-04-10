@@ -10,20 +10,20 @@ import {
   Alert,
 } from 'react-native';
 
-// UPDATED LIVES DATA using local assets for thumbnails
+// UPDATED LIVES DATA using local assets for thumbnails with new IDs
 const trendingVideos = [
   {
-    id: '1',
+    id: 'AG',
     title: 'Ariana Grande Live: Promoting New Music',
     thumbnail: require('../assets/arianaLive.jpg'),
   },
   {
-    id: '2',
+    id: 'JB',
     title: 'Community Exclusive: Roasting Fans',
     thumbnail: require('../assets/justinLive.jpg'),
   },
   {
-    id: '3',
+    id: 'TM',
     title: 'Tate Mcrae: Concert Live Stream',
     thumbnail: require('../assets/t8Live.jpg'),
   },
@@ -31,12 +31,12 @@ const trendingVideos = [
 
 const friendVideos = [
   {
-    id: '4',
+    id: 'Friend1',
     title: 'rocking out to britney',
     thumbnail: require('../assets/friend1.jpg'),
   },
   {
-    id: '5',
+    id: 'Friend2',
     title: 'guess who just got dumped...',
     thumbnail: require('../assets/friend2.jpg'),
   },
@@ -314,11 +314,11 @@ const ChorialSocialScreen = ({ navigation }) => {
               <TouchableOpacity
                 key={video.id}
                 style={styles.videoCard}
-                onPress={() => navigation.navigate('ArianaLive')}
+                onPress={() => navigation.navigate('LiveViewScreen', { videoId: video.id })}
               >
                 <View style={styles.videoThumbnailWrapper}>
                   <Image
-                    source={typeof video.thumbnail === 'string' ? { uri: video.thumbnail } : video.thumbnail}
+                    source={video.thumbnail}
                     style={styles.videoThumbnail}
                   />
                   <Image
@@ -336,11 +336,11 @@ const ChorialSocialScreen = ({ navigation }) => {
               <TouchableOpacity
                 key={video.id}
                 style={styles.videoCard}
-                onPress={() => Alert.alert('Live Video', `Playing ${video.title}`)}
+                onPress={() => navigation.navigate('LiveViewScreen', { videoId: video.id })}
               >
                 <View style={styles.videoThumbnailWrapper}>
                   <Image
-                    source={typeof video.thumbnail === 'string' ? { uri: video.thumbnail } : video.thumbnail}
+                    source={video.thumbnail}
                     style={styles.videoThumbnail}
                   />
                   <Image
