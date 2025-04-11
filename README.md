@@ -55,9 +55,22 @@ Notes: There's no error checking for the Login so while testing you can leave th
 ---
 
 ### 📺 Live Page
-
-_(Add content here)_
-
+1. Click the **Camera** icon in the bottom navigation bar.
+2. This brings you to the dedicated Communities main page, showing what Communitites you're apart of.
+3. Tap on a Community to enter its detail page.
+4. Press **Accept Invite** to join the community; the button will then change to a muted version of the community’s accent color with the label “Invite Accepted.”
+5. Inside the Community Detail page, use the toggle buttons to filter and view different types of posts:
+   - You: Shows only the posts that you have created.
+   - Exclusive Content: Displays exclusive posts and behind‑the‑scenes updates that match the community’s vibe.
+   - Pictures: Filters the feed to show posts that include images only.
+   - Trending: Displays the posts that are currently trending within the community.
+   - Lives: Displays lives currently happening in the community or informs you if none are happening
+6. Inside a Live Stream Through the Community Toggle or Main Live Toggle:
+   - When you tap the live feed item (for example, in Justin’s community), you are taken directly to the Live Stream view.
+   - The live video plays at the top of the screen.
+   - Below the video, real‑time comments appear so you can keep track of the conversation.
+   - There is an input field at the bottom where you can type and tap **Send** to add your comment.
+   - To exit the live stream, tap the **← Back button**  in the header, which returns you to the Community Detail page where you can select another live stream.
 ---
 
 ### 💬 Messaging Page
