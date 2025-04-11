@@ -99,7 +99,19 @@ _(Add content here)_
 
 ### 🔔 Notifications Page
 
-_(Add content here)_
+1. Go to the notifications page by clicking the bell icon in the navigation bar.
+2. Ensure you’re on the artist tab (it should be highlighted in blue).
+3. Click on the first notification to check out The Weeknd’s new hit single.
+4. A pop-up will appear asking if you'd like to open the album in Spotify. Select "Confirm" to be redirected to Spotify, where "Blinding Lights" by the Weeknd will start playing.
+5. Return to the web browser with Chordial running.
+6. Notice that the Weeknd notification no longer has a blue dot and has moved to the bottom as a read notification.
+7. Click on the notification for Sabrina Carpenter’s new album.
+8. If you confirm that you’d like to open the album in Spotify, you’ll be redirected to the Short N Sweet album in Spotify.
+9. Return to the browser with Chordial running.
+10. Click on the Taylor Swift notification.
+11. When prompted to open the album in Spotify, click "Cancel" to return to the album notifications.
+12. Select the "Personal" toggle to view notifications related to your comments and likes. Note: Clicking on these notifications won’t currently do anything, but in a complete prototype, it would redirect you to the appropriate post on your feed (home page).
+
 
 ---
 
