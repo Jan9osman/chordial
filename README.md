@@ -23,7 +23,7 @@ Once the site is open, follow these steps to ensure that the dimensions of your 
 
 ### 🔐 Login Page
 
-_(Add any relevant instructions or leave blank if not needed)_
+Notes: There's no error checking for the Login so while testing you can leave these fields blank and it will take you to the Profile Page. However, upon clicking the "Don't have an account? Sign Up," there is minimal error checking for the form for things such as valid email address, all fields being filled in, and password length. Additionally, to test the Login Page out, you will be able to navigate to the Profile Page by clicking the blue Login button or opening up the Login with Spotify modal.
 
 ---
 
@@ -105,4 +105,12 @@ _(Add content here)_
 
 ### 👤 Profile Page
 
-_(Add content here)_
+1. Upon logging in, you will be on the profile page.
+2. Tap on the **Edit Profile Button**
+3. Erase the name "John Doe" and type in a different name such as "Chris Lee"
+4. Erase the bio "Music Enjoyer | Cat Lover" and type in a different bio such as "The Weeknd Fan"
+5. Tap on the **Change Profile Picture**
+6. Select a new photo
+7. Tap on **Save Changes** or **Save**
+8. View the reflected changes on the profile page
+9. Scroll through the different **Top Artists** and **Favorite Tracks** to view
